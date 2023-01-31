@@ -1,0 +1,25 @@
+{
+  "name": "dep-smart_contract",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shubhamshd/dep-smart_contract.git"
+  },
+  "author": "shubham",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shubhamshd/dep-smart_contract/issues"
+  },
+  "homepage": "https://github.com/shubhamshd/dep-smart_contract#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.1"
+  }
+}
