@@ -11,9 +11,10 @@ contract TokenGating is ERC721URIStorage{
     Counters.Counter public tokenId;
     address payable contractAddress = payable(address(this));
     address public owner;
-    uint256 public mintPrice;
+    // uint256 public mintPrice;
 
     mapping(uint256 => address[]) userTokenAccess;
+    mapping(address => mapping(uint256 => bool)) public userTokenAccess3d;
     mapping(uint256 => uint8) videoPrice;
 
 
@@ -31,7 +32,7 @@ contract TokenGating is ERC721URIStorage{
 
 
     // encode the video metadata to base64 before setting it as tokenURI
-    // "video 1", "http://test.xyz", 1, 1, "mod 1", "course 1"
+    // "video 1", "http://test.xyz", 1, "1", "mod 1", "course 1"
     function getTokenURI(
         string calldata _videoName, 
         string calldata _videoUrl, 
@@ -64,10 +65,7 @@ contract TokenGating is ERC721URIStorage{
         );
 
         return string(
-            abi.encodePacked(
-                "data:application/json;base64,",
-                Base64.encode(dataURI)
-            )
+            abi.encodePacked(dataURI)
         );
     }
     //@params video_number, video_name, video_data, module_number, module_name, course_name
@@ -84,6 +82,12 @@ contract TokenGating is ERC721URIStorage{
         uint256 newTokenId = tokenId.current();
         _safeMint(msg.sender, newTokenId);
         _setTokenURI(newTokenId, getTokenURI(_videoName,  _videoUrl, _videoPrice,  _moduleNumber,  _moduleName,  _courseName));
+        
+        // uint output;
+        // assembly {
+        //     output := parseUnsignedInt(_videoPrice)
+        // }
+
         videoPrice[newTokenId] = _videoPrice;
         return newTokenId;
     }
@@ -148,6 +152,7 @@ contract TokenGating is ERC721URIStorage{
         // contractAddress.transfer(msg.value);
 
         userTokenAccess[_tokenId].push(_address);
+        userTokenAccess3d[_address][_tokenId] = true;
 
     }
 
@@ -172,6 +177,11 @@ contract TokenGating is ERC721URIStorage{
     function checkAccess(address _address, uint256 _tokenId) public view returns(bool) {
         require(_tokenId > 0 && _tokenId <= tokenId.current(), "tokenId does not exist");
         return isAddressInArray(_address, _tokenId);
+    }
+
+    function optCheckAccess(address _address, uint256 _tokenId) public view returns(bool) {
+        require(_tokenId > 0 && _tokenId <= tokenId.current(), "tokenId does not exist");
+        return userTokenAccess3d[_address][_tokenId];
     }
 
     function transferContractBalance(address payable _to, uint _amount) public onlyOwner {
