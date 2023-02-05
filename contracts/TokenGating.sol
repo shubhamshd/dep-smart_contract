@@ -33,33 +33,30 @@ contract TokenGating is ERC721URIStorage{
 
     // encode the video metadata to base64 before setting it as tokenURI
     // "video 1", "http://test.xyz", 1, "1", "mod 1", "course 1"
+    // @param _courseToken, _moduleName, _videoName, _videoImageUrl, _videoUrl
     function getTokenURI(
+        string calldata _courseToken, 
+        string calldata _moduleName,
         string calldata _videoName, 
-        string calldata _videoUrl, 
-        uint8 _videoPrice, 
-        string calldata _moduleNumber, 
-        string calldata _moduleName, 
-        string calldata _courseName) private pure returns (string memory){
+        string calldata _videoImageUrl, 
+        string calldata _videoUrl) private pure returns (string memory){
 
         bytes memory dataURI = abi.encodePacked(
             "{",
-            '"video_name": "',
-            _videoName,
-            '",',
-            '"video_url": "',
-            _videoUrl,
-            '",',
-            '"video_price": "',
-            _videoPrice,
-            '",',
-            '"module_number": "',
-            _moduleNumber,
+            '"course_token": "',
+            _courseToken,
             '",',
             '"module_name": "',
             _moduleName,
             '",',
-            '"course_name": "',
-            _courseName,
+            '"video_name": "',
+            _videoName,
+            '",',
+            '"video_imageUrl": "',
+            _videoImageUrl,
+            '",',
+            '"video_url": "',
+            _videoUrl,
             '"'
             "}"
         );
@@ -68,49 +65,37 @@ contract TokenGating is ERC721URIStorage{
             abi.encodePacked(dataURI)
         );
     }
-    //@params video_number, video_name, video_data, module_number, module_name, course_name
+    //@params _courseToken, _moduleName, _videoName, _videoImageUrl, _videoUrl, _videoPrice
     //mint NFT for every video uploaded with author/tutor as the owner of the NFT
+
     function createVideoNFT( 
-        string calldata _videoName, 
-        string calldata _videoUrl, 
-        uint8 _videoPrice,
-        string calldata _moduleNumber, 
+        string calldata _courseToken, 
         string calldata _moduleName, 
-        string calldata _courseName) public payable returns (uint256){
+        string calldata _videoName, 
+        string calldata _videoImageUrl, 
+        string calldata _videoUrl,
+        uint8 _videoPrice) public returns (uint256){
 
         tokenId.increment();
         uint256 newTokenId = tokenId.current();
         _safeMint(msg.sender, newTokenId);
-        _setTokenURI(newTokenId, getTokenURI(_videoName,  _videoUrl, _videoPrice,  _moduleNumber,  _moduleName,  _courseName));
+        _setTokenURI(newTokenId, getTokenURI(_courseToken, _moduleName, _videoName, _videoImageUrl, _videoUrl));
         
-        // uint output;
-        // assembly {
-        //     output := parseUnsignedInt(_videoPrice)
-        // }
-
         videoPrice[newTokenId] = _videoPrice;
         return newTokenId;
     }
 
     function getCourseTokenURI(
         string calldata _courseName, 
-        string calldata _courseImageUrl, 
-        string calldata _tutorName, 
-        string calldata _tutorIconUrl) private pure returns (string memory){
+        string calldata _tutorName) private pure returns (string memory){
 
         bytes memory dataURI = abi.encodePacked(
             "{",
             '"course_name": "',
             _courseName,
             '",',
-            '"course_imageUrl": "',
-            _courseImageUrl,
-            '",',
             '"tutor_name": "',
             _tutorName,
-            '",',
-            '"tutor_iconUrl": "',
-            _tutorIconUrl,
             '"'
             "}"
         );
@@ -126,15 +111,17 @@ contract TokenGating is ERC721URIStorage{
     //mint NFT for every video uploaded with author/tutor as the owner of the NFT
     function createCourseNFT( 
         string calldata _courseName, 
-        string calldata _courseImageUrl, 
-        string calldata _tutorName, 
-        string calldata _tutorIconUrl) public payable returns (uint256){
+        string calldata _tutorName) public returns (uint256){
 
         tokenId.increment();
         uint256 newTokenId = tokenId.current();
         _safeMint(msg.sender, newTokenId);
-        _setTokenURI(newTokenId, getCourseTokenURI(_courseName,  _courseImageUrl, _tutorName,  _tutorIconUrl));
+        _setTokenURI(newTokenId, getCourseTokenURI(_courseName, _tutorName));
         return newTokenId;
+    }
+
+    function getNftOwner(uint256 _tokenId) public view returns (address) {
+        return ownerOf(_tokenId);
     }
 
     function buyCourseVideoFor(address _address, uint256 _tokenId) public payable{
@@ -192,4 +179,3 @@ contract TokenGating is ERC721URIStorage{
         return address(this).balance;
     }
 }
-
