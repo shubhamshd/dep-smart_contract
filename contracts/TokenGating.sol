@@ -148,6 +148,25 @@ contract TokenGating is ERC721URIStorage{
 
     }
 
+    function buyCourseFor(address _address, uint256 _tokenId) public payable{
+
+        /*
+        need to check that the msg.sender has enough ether to buy the video
+        and for that smart contract should have a way to access the price chart??
+        */
+
+        require(_tokenId > 0 && _tokenId <= tokenId.current(), "tokenId does not exist");
+        require(msg.value > 0 && msg.value >= coursePrice[_tokenId], "Insufficient fund received");
+        require(!isAddressInArray(_address, _tokenId), "User already has access to the course");
+
+        // increment the contract balance
+        // contractAddress.transfer(msg.value);
+
+        userTokenAccess[_tokenId].push(_address);
+        userTokenAccess3d[_address][_tokenId] = true;
+
+    }
+
     /*
     instead of using loop to find the access
     we can use following mapping var to store the access ->     
