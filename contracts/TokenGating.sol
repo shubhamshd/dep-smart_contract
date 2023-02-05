@@ -16,6 +16,8 @@ contract TokenGating is ERC721URIStorage{
     mapping(uint256 => address[]) userTokenAccess;
     mapping(address => mapping(uint256 => bool)) public userTokenAccess3d;
     mapping(uint256 => uint8) videoPrice;
+    mapping(uint256 => uint8) coursePrice;
+
 
 
     constructor() ERC721 ("Idea NFT", "DIP"){
@@ -111,12 +113,15 @@ contract TokenGating is ERC721URIStorage{
     //mint NFT for every video uploaded with author/tutor as the owner of the NFT
     function createCourseNFT( 
         string calldata _courseName, 
-        string calldata _tutorName) public returns (uint256){
+        string calldata _tutorName,
+        uint8 _coursePrice) public returns (uint256){
 
         tokenId.increment();
         uint256 newTokenId = tokenId.current();
         _safeMint(msg.sender, newTokenId);
         _setTokenURI(newTokenId, getCourseTokenURI(_courseName, _tutorName));
+        coursePrice[newTokenId] = _coursePrice;
+
         return newTokenId;
     }
 
